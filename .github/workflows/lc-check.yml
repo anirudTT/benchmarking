@@ -24,6 +24,10 @@ jobs:
         uses: tj-actions/changed-files@v44
         with:
           since_last_remote_commit: true
+      - name: Log changed files
+        run: |
+            echo "Changed files:"
+            echo "${{ steps.changed-files.outputs.all_changed_files }}"
 
       - name: Check license headers for changed files
         run: |
