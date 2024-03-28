@@ -43,7 +43,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const unmatchedFiles = `${process.env.UNMATCHED_FILES}`;
-            if (unmatchedFiles && context && context.issue) {
+            if (unmatchedFiles && github && github.issues && github.issues.createComment && context && context.issue) {
               const filesArray = unmatchedFiles.split('\n').filter(Boolean);
               const message = "The following files do not have matching license headers:\n\n" + filesArray.join('\n');
               github.issues.createComment({
@@ -52,4 +52,6 @@ jobs:
                 repo: context.repo.repo,
                 body: message
               });
+            } else {
+              console.error("Error: Unable to create comment. Check if GitHub context is properly set up.");
             }
