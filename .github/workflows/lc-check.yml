@@ -36,6 +36,11 @@ jobs:
           unmatched_files=$(deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main "$changedFiles" | grep -v "Found")
           echo "::set-output name=unmatched_files::$unmatched_files"
 
+      - name: Log unmatched files
+        run: |
+          echo "Unmatched files:"
+          echo "${{ steps.unmatched_files.outputs.unmatched_files }}"
+
       - name: Comment on PR with unmatched files
         if: steps.unmatched_files.outputs.unmatched_files != ''
         uses: actions/github-script@v5
