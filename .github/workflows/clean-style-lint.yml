@@ -15,7 +15,6 @@ jobs:
           with:
             python-version: '3.8'
         - name: Install dependencies and run clean and lint
-          working-directory: benchmark
           run: |
             python -m venv venv
             source venv/bin/activate && \
