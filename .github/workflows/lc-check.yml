@@ -16,6 +16,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 2
 
+      - name: Set up Deno
+        uses: denolib/setup-deno@v2
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v44
@@ -25,12 +28,12 @@ jobs:
       - name: Check license headers for changed files
         run: |
           changedFiles=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ')
-          deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main $changedFiles
+          deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main "$changedFiles"
 
       - name: Generate list of files without matching license headers
         id: unmatched_files
         run: |
-          unmatched_files=$(deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main $changedFiles | grep -v "Found")
+          unmatched_files=$(deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main "$changedFiles" | grep -v "Found")
           echo "::set-output name=unmatched_files::$unmatched_files"
 
       - name: Comment on PR with unmatched files
