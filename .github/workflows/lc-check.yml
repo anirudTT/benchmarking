@@ -43,11 +43,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const unmatchedFiles = `${process.env.UNMATCHED_FILES}`;
-            const filesArray = unmatchedFiles.split('\n').filter(Boolean);
-            const message = "The following files do not have matching license headers:\n\n" + filesArray.join('\n');
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
+            if (unmatchedFiles && context && context.issue) {
+              const filesArray = unmatchedFiles.split('\n').filter(Boolean);
+              const message = "The following files do not have matching license headers:\n\n" + filesArray.join('\n');
+              github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: message
+              });
+            }
