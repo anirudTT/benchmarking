@@ -3,7 +3,8 @@
 
 from collections import defaultdict
 
-
+import evaluate
+import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, FalconForCausalLM, pipeline
@@ -11,8 +12,7 @@ from transformers import AutoTokenizer, FalconForCausalLM, pipeline
 from benchmark.common.benchmark_run import OutputType
 
 from ...common import BenchmarkRun, DummyPipelineDataset, PipelineDataset, benchmark_model, torch_df_from_str
-import evaluate
-import torch
+
 # Set random seed for reproducibility
 torch.manual_seed(42)
 
