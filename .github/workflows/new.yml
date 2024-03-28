@@ -26,9 +26,16 @@ jobs:
           fi
           echo "::set-output name=changed_files::$changed_files"
 
-      - name: List changed .py files
-        run: |
-          echo "Changed .py files:"
-          for file in ${{ steps.changed-files.outputs.changed_files }}; do
-              echo "$file"
-          done
+      - name: Check license headers
+        uses: viperproject/check-license-header@v2
+        with:
+          path: ${{ github.workspace }}
+          config: |
+            [
+              {
+                "include": [
+                  "**/*.py"
+                ],
+                "license": "./path/to/your/license-header.txt"
+              }
+            ]
