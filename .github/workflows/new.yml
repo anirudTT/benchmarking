@@ -36,6 +36,6 @@ jobs:
                 "include": [
                   "**/*.py"
                 ],
-                "license": "./path/to/your/license-header.txt"
+                "license": "license-header.txt"
               }
             ]
