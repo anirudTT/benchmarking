@@ -3,13 +3,13 @@
 
 import os
 
-import torch
+
 from datasets import load_dataset
 from torch.utils.data import DataLoader
 from transformers import AutoModelForSeq2SeqLM, AutoTokenizer, T5Config
 
 from ...common import DummyPipelineDataset, PipelineDataset, benchmark_model
-
+import torch
 
 class T5_encoder(torch.nn.Module):
     def __init__(self, model):

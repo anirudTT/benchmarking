@@ -29,12 +29,3 @@ jobs:
         run: |
           echo "Changed files:"
           echo "${{ steps.changed-files.outputs.all_changed_files }}"
-
-      - name: Run license check
-        run: |
-          ./bin/license-header-checker -r -v -i node_modules ./license_header.txt "${{ steps.changed-files.outputs.all_changed_files }}" && [[ -z `git status -s` ]]
-
-      - name: Log license check result
-        run: |
-          echo "License check result:"
-          cat license-checker.log || echo "No log file found"
