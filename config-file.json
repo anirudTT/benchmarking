@@ -3,6 +3,6 @@
         "include": [
             "**/*.py"
         ],
-        "license": "SPDX-FileCopyrightText: © 2024 Tenstorrent AI ULC"
+        "license": "l.txt"
     }
 ]
