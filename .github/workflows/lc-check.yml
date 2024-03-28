@@ -1,63 +1,65 @@
-name: Check License Headers
 
-on:
-  pull_request:
-    branches:
-      - main
 
-jobs:
-  check_license:
-    runs-on: ubuntu-latest
+# name: Check License Headers
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 2
+# on:
+#   pull_request:
+#     branches:
+#       - main
 
-      - name: Set up Deno
-        uses: denolib/setup-deno@v2
+# jobs:
+#   check_license:
+#     runs-on: ubuntu-latest
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v44
-        with:
-          since_last_remote_commit: true
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+#         with:
+#           ref: ${{ github.event.pull_request.head.sha }}
+#           fetch-depth: 2
 
-      - name: Log changed files
-        run: |
-            echo "Changed files:"
-            echo "${{ steps.changed-files.outputs.all_changed_files }}"
+#       - name: Set up Deno
+#         uses: denolib/setup-deno@v2
 
-      - name: Check license headers for changed files
-        id: check-license
-        run: |
-          changedFiles=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ')
-          unmatched_files=$(deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main "$changedFiles" | grep -v "Found")
-          echo "::set-output name=unmatched_files::$unmatched_files"
+#       - name: Get changed files
+#         id: changed-files
+#         uses: tj-actions/changed-files@v44
+#         with:
+#           since_last_remote_commit: true
 
-      - name: Log unmatched files
-        run: |
-          echo "Unmatched files:"
-          echo "${{ steps.check-license.outputs.unmatched_files }}"
+#       - name: Log changed files
+#         run: |
+#             echo "Changed files:"
+#             echo "${{ steps.changed-files.outputs.all_changed_files }}"
 
-      - name: Comment on PR with unmatched files
-        if: steps.check-license.outputs.unmatched_files != ''
-        uses: actions/github-script@v5
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const unmatchedFiles = `${process.env.UNMATCHED_FILES}`;
-            if (unmatchedFiles && github && github.issues && github.issues.createComment && context && context.issue) {
-              const filesArray = unmatchedFiles.split('\n').filter(Boolean);
-              const message = "The following files do not have matching license headers:\n\n" + filesArray.join('\n');
-              github.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: message
-              });
-            } else {
-              console.error("Error: Unable to create comment. Check if GitHub context is properly set up.");
-            }
+      # - name: Check license headers for changed files
+      #   id: check-license
+      #   run: |
+      #     changedFiles=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ')
+      #     unmatched_files=$(deno run --allow-read jsr:@kt3k/license-checker@3.2.11/main "$changedFiles" | grep -v "Found")
+      #     echo "::set-output name=unmatched_files::$unmatched_files"
+
+      # - name: Log unmatched files
+      #   run: |
+      #     echo "Unmatched files:"
+      #     echo "${{ steps.check-license.outputs.unmatched_files }}"
+
+      # - name: Comment on PR with unmatched files
+      #   if: steps.check-license.outputs.unmatched_files != ''
+      #   uses: actions/github-script@v5
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const unmatchedFiles = `${process.env.UNMATCHED_FILES}`;
+      #       if (unmatchedFiles && github && github.issues && github.issues.createComment && context && context.issue) {
+      #         const filesArray = unmatchedFiles.split('\n').filter(Boolean);
+      #         const message = "The following files do not have matching license headers:\n\n" + filesArray.join('\n');
+      #         github.issues.createComment({
+      #           issue_number: context.issue.number,
+      #           owner: context.repo.owner,
+      #           repo: context.repo.repo,
+      #           body: message
+      #         });
+      #       } else {
+      #         console.error("Error: Unable to create comment. Check if GitHub context is properly set up.");
+      #       }

@@ -1,0 +1,40 @@
+name: Check License Headers
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_license:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 2
+
+      - name: Install license-header-checker
+        run: curl -s https://raw.githubusercontent.com/lluissm/license-header-checker/master/install.sh | bash
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          since_last_remote_commit: true
+
+      - name: Log changed files
+        run: |
+          echo "Changed files:"
+          echo "${{ steps.changed-files.outputs.all_changed_files }}"
+
+      - name: Run license check
+        run: |
+          ./bin/license-header-checker -r -v -i node_modules ./license_header.txt "${{ steps.changed-files.outputs.all_changed_files }}" && [[ -z `git status -s` ]]
+
+      - name: Log license check result
+        run: |
+          echo "License check result:"
+          cat license-checker.log || echo "No log file found"
