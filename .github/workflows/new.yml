@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+  push:
 
 jobs:
   check_license:
@@ -29,12 +30,5 @@ jobs:
         uses: viperproject/check-license-header@v2
         with:
           path: ${{ github.workspace }}
-          config: |
-            [
-              {
-                "include": [
-                  "**/*.py"
-                ],
-                "license": "./license-header.txt"
-              }
-            ]
+          config: "./config-file.json"
+          strict: false
