@@ -1,0 +1,28 @@
+name: "l-checker workflow"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  check-spdx-licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+          cache-dependency-path: infra/requirements-infra.txt
+      
+      - name: Install infra dependencies
+        run: |
+          python -m pip install git+https://github.com/espressif/check-copyright.git@master
+      
+      - name: Check SPDX licenses
+        run: |
+          python -m check_copyright --verbose --dry-run --config ./check_copyright_config.yaml .
