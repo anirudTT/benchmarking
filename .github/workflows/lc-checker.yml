@@ -25,4 +25,4 @@ jobs:
       
       - name: Check SPDX licenses
         run: |
-          python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml .
+          python -m check_copyright --verbose --dry-run --r --config ./check_copyright_config.yaml .
