@@ -26,4 +26,3 @@ ignore:  # You can also select ignoring files here
   include:
     - .github/*
     - __pycache__
-    - *.md
