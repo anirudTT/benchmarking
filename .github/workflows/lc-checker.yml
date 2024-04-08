@@ -4,6 +4,12 @@ on:
   pull_request:
     branches:
       - "main"
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - assigned
+      - review_requested
 
 jobs:
   check-spdx-licenses:
