@@ -30,5 +30,24 @@ jobs:
           python -m pip install git+https://github.com/espressif/check-copyright.git@master
       
       - name: Check SPDX licenses
+        id: check-licenses
         run: |
-          python -m check_copyright --verbose --dry-run --config ./check_copyright_config.yaml .
+          output=$(python -m check_copyright --verbose --dry-run --config ./check_copyright_config.yaml .)
+          echo "::set-output name=output::$output"
+          echo "$output" | grep -E "Not an Espressif|Some files are without a copyright note" > errors.txt || true
+      
+      - name: Post comment if issues found
+        if: steps.check-licenses.outputs.output != ''
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('errors.txt')) {
+              const errors = fs.readFileSync('errors.txt', 'utf8');
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: errors
+              });
+            }
