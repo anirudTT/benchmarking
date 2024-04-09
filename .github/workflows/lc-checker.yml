@@ -46,5 +46,15 @@ jobs:
       - name: Post comment if issues found
         id: print-then
         # run: echo "${{ steps.check-licenses.outputs.output }}"
-        run: echo output
+        run: echo $output
 
+      - name: Comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'checking SPDX licenses failed, please check the files and add the missing SPDX licenses.'
+            })
