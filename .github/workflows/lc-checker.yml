@@ -31,7 +31,6 @@ jobs:
         with:
           script: |
             const execSync = require('child_process').execSync;
-            const core = require('@actions/core');
             const command = `python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | awk '/Some files are without a copyright note and a license header needs to be added:/{flag=1; next} /Additional information about this hook and copyright headers may be found here:/{flag=0} flag'`;
             let output;
             try {
@@ -39,14 +38,14 @@ jobs:
             } catch (error) {
               output = error.stdout; // captures stdout from the error, if command execution fails
             }
-
+      
             // Remove ANSI color codes
             output = output.replace(/\u001b\[.*?m/g, '');
-
+      
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-
+      
             if (output) {
               const commentBody = `Checking SPDX licenses checking step failed. Please check the following files and add the missing SPDX licenses to them!:\n\n${output}`;
               await github.rest.issues.createComment({
