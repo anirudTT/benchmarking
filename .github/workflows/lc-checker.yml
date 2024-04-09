@@ -37,23 +37,11 @@ jobs:
           set -e
           echo "::set-output name=output::$output"
           if [ $exit_code -eq 1 ]; then
-            echo "SPDX license check failed with exit code $exit_code"
+            echo "SPDX license check failed with exit code $exit_code ***************"
             exit 0  # We exit with code 0 to ensure the workflow continues
           fi
     
-        
-            # set +e
-            # output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml .)
-            # exit_code=$?
-            # set -e
-            # echo "Output: $output"  # Add this line for debug
-            # echo "::set-output name=output::$output"
-            # if [ $exit_code -ne 0 ]; then
-            #   echo "SPDX license check failed with exit code $exit_code"
-            #   echo "$output"
-            #   exit 0  # We exit with code 0 to ensure the workflow continues
-            # fi
-        
+
 
       # - name: Post comment if issues found
       #   if: steps.check-licenses.outputs.output != ''
