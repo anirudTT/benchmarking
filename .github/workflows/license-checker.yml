@@ -47,7 +47,7 @@ jobs:
             const repo = context.repo.repo;
       
             if (output) {
-              const commentBody = `Checking SPDX licenses checking step failed. Please check the following files and add the missing SPDX licenses to them:\n\n${output}`;
+              const commentBody = `We've identified an issue with SPDX license compliance in your submission. The automated SPDX license verification process was not successful for certain files. To proceed, please review the indicated files below and ensure that each one includes an appropriate SPDX license identifier.\n This step is crucial for maintaining compliance with licensing requirements.\n Thank you for your attention to this matter.\n\n${output}`;
               await github.rest.issues.createComment({
                 issue_number: issueNumber,
                 owner: owner,

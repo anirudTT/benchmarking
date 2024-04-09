@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -52,10 +52,9 @@ jobs:
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
-        if: env.GPG_KEY_EXISTS == 'true'
         with:
           commit_user_name: CleanBot
           commit_message: '*** AUTOMATED COMMIT | Applied Code Formatting and Cleanup ✨ 🍰 ✨***'
           commit_user_email: aramchandran@tenstorrent.com
-          commit_options: '-S'
+          commit_options: ${{ env.GPG_KEY_EXISTS == 'true' && '-S' || '' }}
           branch: ${{ github.head_ref }}
