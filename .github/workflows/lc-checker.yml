@@ -31,8 +31,7 @@ jobs:
         id: check-licenses
         run: |
           set +e
-          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | awk '/Some files are without a copyright note and a license header needs to be added:/,/^\s*$/')
-
+          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml .)
           exit_code=$?
           echo "$output"  # Print output regardless of exit code
           echo "SPDX_LICENSE_CHECK_OUTPUT=$output" >> $GITHUB_STATE
@@ -42,22 +41,28 @@ jobs:
             exit 0  # We exit with code 0 to ensure the workflow continues
           fi
 
-      - name: Post comment if issues found
-        id: print-then
-        run: echo "::set-output name=output::$GITHUB_STATE"
+  print-then:
+    needs: check-spdx-licenses
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Retrieve SPDX license check output
+        run: echo "${{ env.SPDX_LICENSE_CHECK_OUTPUT }}" >> $GITHUB_OUTPUT
 
-      - name: Comment
+  comment:
+    needs: print-then
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Comment on pull request
         uses: actions/github-script@v6
         with:
           script: |
-            const output = ${{ toJson(steps.print-then.outputs.output) }};
-            const licenseOutput = output.SPDX_LICENSE_CHECK_OUTPUT;
+            const output = ${{ env.SPDX_LICENSE_CHECK_OUTPUT }};
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            if (licenseOutput) {
-              const commentBody = `Checking SPDX licenses failed. Please check the files and add the missing SPDX licenses:\n\n${licenseOutput}`;
+            if (output) {
+              const commentBody = `Checking SPDX licenses failed. Please check the files and add the missing SPDX licenses:\n\n${output}`;
               github.rest.issues.createComment({
                 issue_number: issueNumber,
                 owner: owner,
