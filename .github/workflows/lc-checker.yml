@@ -31,7 +31,8 @@ jobs:
         id: check-licenses
         run: |
           set +e
-          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | grep -E 'Some files are without a copyright note and a license header needs to be added:')
+          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | awk '/Some files are without a copyright note and a license header needs to be added:/,/^\s*$/')
+
           exit_code=$?
           echo "$output"  # Print output regardless of exit code
           set -e
@@ -44,5 +45,6 @@ jobs:
 
       - name: Post comment if issues found
         id: print-then
-        run: echo "${{ steps.check-licenses.outputs.output }}"
+        # run: echo "${{ steps.check-licenses.outputs.output }}"
+        run: echo output
 
