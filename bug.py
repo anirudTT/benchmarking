@@ -1,6 +1,3 @@
-
-
-
 import os
 
-print('hello lc checker should return a bug here')
+print("hello lc checker should return a bug here")
