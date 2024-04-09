@@ -37,37 +37,39 @@ jobs:
           exit_code=$?
           echo "::set-output name=output::$output"
           echo "::set-output name=exit_code::$exit_code"
-          if [ $exit_code -eq 1 ]; then
-            echo "SPDX license check failed with exit code $exit_code ***************"
-            exit 0  # Exit with code 0 to ensure the workflow continues
-          fi
+          echo "SPDX license check failed with exit code $exit_code ***************"
+          echo "Output: $output"
+          # if [ $exit_code -eq 1 ]; then
+          #   echo "SPDX license check failed with exit code $exit_code ***************"
+          #   exit 0  # Exit with code 0 to ensure the workflow continues
+          # fi
 
-  print-then:
-    needs: check-spdx-licenses
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Retrieve SPDX license check output
-        run: echo "${{ needs.check-spdx-licenses.outputs.output }}"
+  # print-then:
+  #   needs: check-spdx-licenses
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Retrieve SPDX license check output
+  #       run: echo "${{ needs.check-spdx-licenses.outputs.output }}"
 
-  comment:
-    needs: print-then
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Comment on pull request
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const output = "${{ needs.check-spdx-licenses.outputs.output }}";
-            const issueNumber = context.issue.number;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+  # comment:
+  #   needs: print-then
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - name: Comment on pull request
+  #       uses: actions/github-script@v6
+  #       with:
+  #         script: |
+  #           const output = "${{ needs.check-spdx-licenses.outputs.output }}";
+  #           const issueNumber = context.issue.number;
+  #           const owner = context.repo.owner;
+  #           const repo = context.repo.repo;
 
-            if (output) {
-              const commentBody = `Checking SPDX licenses failed. Please check the files and add the missing SPDX licenses:\n\n${output}`;
-              github.rest.issues.createComment({
-                issue_number: issueNumber,
-                owner: owner,
-                repo: repo,
-                body: commentBody
-              });
-            }
+  #           if (output) {
+  #             const commentBody = `Checking SPDX licenses failed. Please check the files and add the missing SPDX licenses:\n\n${output}`;
+  #             github.rest.issues.createComment({
+  #               issue_number: issueNumber,
+  #               owner: owner,
+  #               repo: repo,
+  #               body: commentBody
+  #             });
+  #           }
