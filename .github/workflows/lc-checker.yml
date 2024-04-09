@@ -26,11 +26,12 @@ jobs:
       - name: Install infra dependencies
         run: python -m pip install git+https://github.com/espressif/check-copyright.git@master
 
-      - name: Check SPDX licenses and comment on PR
+      - name: Check SPDX licenses and comment on PR, then fail if issues found
         uses: actions/github-script@v6
         with:
           script: |
             const execSync = require('child_process').execSync;
+            const core = require('@actions/core');
             const command = `python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | awk '/Some files are without a copyright note and a license header needs to be added:/{flag=1; next} /Additional information about this hook and copyright headers may be found here:/{flag=0} flag'`;
             let output;
             try {
@@ -48,12 +49,13 @@ jobs:
 
             if (output) {
               const commentBody = `Checking SPDX licenses checking step failed. Please check the following files and add the missing SPDX licenses to them!:\n\n${output}`;
-              github.rest.issues.createComment({
+              await github.rest.issues.createComment({
                 issue_number: issueNumber,
                 owner: owner,
                 repo: repo,
                 body: commentBody
               });
+              core.setFailed("SPDX license issues found.");
             } else {
               console.log("No SPDX license issues found.");
             }
