@@ -35,26 +35,33 @@ jobs:
 
           exit_code=$?
           echo "$output"  # Print output regardless of exit code
-          set -e
-          # echo "::set-output name=output::$output"
+          echo "SPDX_LICENSE_CHECK_OUTPUT=$output" >> $GITHUB_STATE
+          echo "SPDX_LICENSE_CHECK_EXIT_CODE=$exit_code" >> $GITHUB_STATE
           if [ $exit_code -eq 1 ]; then
-            echo "SPDX license check failed with exit code $exit_code *************** will be printed in next step"
-            # echo "$output"
+            echo "SPDX license check failed with exit code $exit_code ***************"
             exit 0  # We exit with code 0 to ensure the workflow continues
           fi
 
       - name: Post comment if issues found
         id: print-then
-        # run: echo "${{ steps.check-licenses.outputs.output }}"
-        run: echo $output
+        run: echo "::set-output name=output::$GITHUB_STATE"
 
       - name: Comment
         uses: actions/github-script@v6
         with:
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: 'checking SPDX licenses failed, please check the files and add the missing SPDX licenses."${{ steps.check-licenses.outputs.output }}'
-            })
+            const output = ${{ toJson(steps.print-then.outputs.output) }};
+            const licenseOutput = output.SPDX_LICENSE_CHECK_OUTPUT;
+            const issueNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            if (licenseOutput) {
+              const commentBody = `Checking SPDX licenses failed. Please check the files and add the missing SPDX licenses:\n\n${licenseOutput}`;
+              github.rest.issues.createComment({
+                issue_number: issueNumber,
+                owner: owner,
+                repo: repo,
+                body: commentBody
+              });
+            }
