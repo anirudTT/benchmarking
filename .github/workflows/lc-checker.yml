@@ -33,7 +33,7 @@ jobs:
         id: check-licenses
         run: |
           set +e
-          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml .)
+          output=$(python -m check_copyright --verbose --dry-run --replace --config ./check_copyright_config.yaml . | awk '/Some files are without a copyright note and a license header needs to be added:/,/^\s*$/')
           exit_code=$?
           echo "::set-output name=output::$output"
           echo "::set-output name=exit_code::$exit_code"
