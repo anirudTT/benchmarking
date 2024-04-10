@@ -1,4 +1,1 @@
-
-
-
-print('this should fail both workflows')
+print("this should fail both workflows")
