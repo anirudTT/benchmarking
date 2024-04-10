@@ -1,4 +1,4 @@
-name: "License Checker"
+name: "Check if License is present"
 
 on:
   pull_request:
