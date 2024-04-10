@@ -1,0 +1,38 @@
+name: Check SPDX License in PR Diffs
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, assigned, review_requested]
+
+jobs:
+  check-spdx-license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Identify changed Python files
+        id: get-python-files
+        run: |
+          files=$(git diff --name-only HEAD^ HEAD | grep '\.py$')
+          echo "::set-output name=python_files::$files"
+
+      - name: Check for SPDX license header
+        if: steps.get-python-files.outputs.python_files != ''
+        run: |
+          missing_license_files=""
+          for file in ${{ steps.get-python-files.outputs.python_files }}; do
+            if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "2024"; then
+              missing_license_files="$missing_license_files$file "
+            fi
+          done
+          if [ -n "$missing_license_files" ]; then
+            echo "The following Python files are missing the correct SPDX license header or do not contain '2024':"
+            echo $missing_license_files
+            exit 1
+          else
+            echo "All changed Python files contain the correct SPDX license header and '2024'."
+          fi
