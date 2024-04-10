@@ -1,4 +1,4 @@
-name: Check SPDX License in PR Diffs
+name: Validate SPDX License in Python Files
 
 on:
   pull_request:
@@ -14,25 +14,41 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Identify changed Python files
-        id: get-python-files
-        run: |
-          files=$(git diff --name-only HEAD^ HEAD | grep '\.py$')
-          echo "::set-output name=python_files::$files"
-
-      - name: Check for SPDX license header
-        if: steps.get-python-files.outputs.python_files != ''
+      - name: Identify changed Python files and check licenses
+        id: check-licenses
         run: |
           missing_license_files=""
-          for file in ${{ steps.get-python-files.outputs.python_files }}; do
+          for file in $(git diff --name-only HEAD^ HEAD | grep '\.py$'); do
             if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "2024"; then
-              missing_license_files="$missing_license_files$file "
+              missing_license_files="$missing_license_files$file\n"
             fi
           done
           if [ -n "$missing_license_files" ]; then
-            echo "The following Python files are missing the correct SPDX license header or do not contain '2024':"
-            echo $missing_license_files
-            exit 1
+            echo "::set-output name=missing_files::${missing_license_files}"
           else
-            echo "All changed Python files contain the correct SPDX license header and '2024'."
+            echo "::set-output name=missing_files::"
           fi
+
+      - name: Comment on PR about missing SPDX licenses
+        if: steps.check-licenses.outputs.missing_files != ''
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const missingFiles = `${{ steps.check-licenses.outputs.missing_files }}`;
+            const commentBody = `The following Python files are missing the correct SPDX license header or do not contain '2024':\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.`;
+            
+            github.rest.issues.createComment({
+              issue_number: issueNumber,
+              owner: owner,
+              repo: repo,
+              body: commentBody
+            });
+
+      - name: Fail the workflow
+        if: steps.check-licenses.outputs.missing_files != ''
+        run: |
+          echo "Failing the workflow due to non-compliance with SPDX license requirements."
+          exit 1
