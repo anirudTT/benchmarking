@@ -1,23 +1,28 @@
 DEFAULT:
-  perform_check: yes
+  perform_check: yes  # Ensure that license header check is performed
+
+  # List of allowed licenses for files in this section
   allowed_licenses:
     - Apache-2.0
     - MIT
-  license_for_new_files: Apache-2.0
+  license_for_new_files: Apache-2.0  # License to be used when inserting a new copyright notice
+
   new_notice_python: |
     """
-    SPDX-FileCopyrightText: © 2024 Tenstorrent Inc.
+    SPDX-FileCopyrightText: © {years} Tenstorrent Inc.
 
     SPDX-License-Identifier: {license}
     """
 
-  espressif_copyright: '© 2024 Tenstorrent Inc.'
+  # Define the template for replacing comment lines with SPDX notation
+  espressif_copyright: '© {years} Tenstorrent Inc.'
 
+  # Update the include section with the file types you want to check
   include:
     - "*.py"
 
-ignore:
-  perform_check: no
+ignore:  # You can also select ignoring files here
+  perform_check: no  # Don't check files from that block
   include:
     - .github/*
     - __pycache__
