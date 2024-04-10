@@ -1,10 +1,8 @@
-
+import os
 
 import pybuda
 import python
 
-import os 
-
 
 def test():
-    return a+1
+    return a + 1
