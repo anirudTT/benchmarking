@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: © 2023 Tenstorrent Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import argparse
 import inspect
 import json
 import logging
+import os
 import pathlib
 import pickle
 import queue
@@ -15,7 +15,6 @@ import threading
 import time
 import traceback
 from typing import Any, Callable, Dict
-
 
 import torch
 import transformers
@@ -57,7 +56,8 @@ transformers.logging.set_verbosity_error()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-print('test if this was modified what happens')
+print("test if this was modified what happens")
+
 
 def run(
     args,
