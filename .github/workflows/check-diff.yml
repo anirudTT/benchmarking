@@ -38,7 +38,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const missingFiles = `${{ steps.check-licenses.outputs.missing_files }}`;
-            const commentBody = `The following Python files are missing the correct SPDX license header or do not contain '2024 year within thier liscene header':\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.`;
+            const commentBody = `The following Python files are missing the correct SPDX license header or do not contain '2024 year within thier license header':\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.`;
             
             github.rest.issues.createComment({
               issue_number: issueNumber,
