@@ -39,15 +39,15 @@ jobs:
               output = error.stdout; // captures stdout from the error, if command execution fails
             }
       
-            // Remove ANSI color codes
-            output = output.replace(/\u001b\[.*?m/g, '');
+            // Remove ANSI color codes and format the file list for copyable output
+            output = output.replace(/\u001b\[.*?m/g, '').split('\n').join('\n- ');
       
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
       
             if (output) {
-              const commentBody = `Our automated SPDX license verification process has identified non-compliance in some files within your submission. Please ensure each indicated file includes a valid SPDX license identifier. This is essential for maintaining licensing compliance. Your attention and cooperation in this matter are greatly appreciated. \n\n${output}`;
+              const commentBody = `Our automated SPDX license verification process has identified non-compliance in some files within your submission. Please ensure each indicated file includes a valid SPDX license identifier. This is essential for maintaining licensing compliance. Your attention and cooperation in this matter are greatly appreciated. \n\nAffected files:\n\`\`\`\n- ${output}\`\`\``;
               await github.rest.issues.createComment({
                 issue_number: issueNumber,
                 owner: owner,
@@ -58,3 +58,4 @@ jobs:
             } else {
               console.log("No SPDX license issues found.");
             }
+      
