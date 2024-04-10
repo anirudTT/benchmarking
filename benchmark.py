@@ -56,8 +56,6 @@ transformers.logging.set_verbosity_error()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-print("test if this was modified what happens")
-
 
 def run(
     args,
