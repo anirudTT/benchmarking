@@ -1,4 +1,4 @@
-name: Validate SPDX License in Python Files
+name: Validate SPDX License in currently changed Python Files
 
 on:
   pull_request:
