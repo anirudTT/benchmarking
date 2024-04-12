@@ -22,9 +22,10 @@ jobs:
       - name: Identify changed Python files and check licenses
         id: check-licenses
         run: |
+          current_year=$(date +"%Y")
           missing_license_files=""
           for file in $(git diff --name-only HEAD^ HEAD | grep '\.py$'); do
-            if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "2024"; then
+            if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "$current_year"; then
               missing_license_files="$missing_license_files$file\n"
             fi
           done
@@ -43,7 +44,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const missingFiles = `${{ steps.check-licenses.outputs.missing_files }}`;
-            const commentBody = `The following Python files are missing the correct SPDX license year or do not contain the '2024 year' within thier license header:\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\n Thank you.`;
+            const commentBody = `The following Python files are missing the correct SPDX license year or do not contain the '${current_year}' year within their license header:\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\n Thank you.`;
             
             github.rest.issues.createComment({
               issue_number: issueNumber,
