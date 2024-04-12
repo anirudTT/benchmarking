@@ -22,29 +22,26 @@ jobs:
       - name: Identify changed Python files and check licenses
         id: check-licenses
         run: |
-          current_year=$(date +"%Y")
+          echo "current_year=$(date +"%Y")" >> $GITHUB_ENV  # Set current year as an environment variable
           missing_license_files=""
           for file in $(git diff --name-only HEAD^ HEAD | grep '\.py$'); do
             if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "$current_year"; then
               missing_license_files="$missing_license_files$file\n"
             fi
           done
-          if [ -n "$missing_license_files" ]; then
-            echo "::set-output name=missing_files::${missing_license_files}"
-          else
-            echo "::set-output name=missing_files::"
-          fi
+          echo "missing_license_files=$missing_license_files" >> $GITHUB_ENV  # Export the list of files
 
       - name: Comment on PR about missing SPDX licenses
-        if: steps.check-licenses.outputs.missing_files != ''
+        if: env.missing_license_files != ''
         uses: actions/github-script@v6
         with:
           script: |
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const missingFiles = `${{ steps.check-licenses.outputs.missing_files }}`;
-            const commentBody = `The following Python files are missing the correct SPDX license year or do not contain the '${current_year}' year within their license header:\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\n Thank you.`;
+            const missingFiles = process.env.missing_license_files.trim();
+            const currentYear = process.env.current_year;
+            const commentBody = `The following Python files are missing the correct SPDX license year or do not contain the '${currentYear}' year within their license header:\n\`\`\`\n${missingFiles}\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\n Thank you.`;
             
             github.rest.issues.createComment({
               issue_number: issueNumber,
@@ -54,7 +51,7 @@ jobs:
             });
 
       - name: Fail the workflow
-        if: steps.check-licenses.outputs.missing_files != ''
+        if: env.missing_license_files != ''
         run: |
           echo "Failing the workflow due to non-compliance with SPDX license requirements."
           exit 1
