@@ -1,4 +1,4 @@
-name: Validate SPDX License year and company mention in currently changed Python Files
+name: Validate SPDX License year and company mention in currently changed Files
 
 on:
   pull_request:
@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Identify changed Python files and check licenses
+      - name: Identify currently changed files and check licenses
         id: check-licenses
         run: |
           current_year=$(date +"%Y")  # Dynamically set current year for checking
