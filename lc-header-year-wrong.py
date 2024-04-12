@@ -3,4 +3,4 @@
 
 
 # wrong_spdx_license year
-print('wrong_spdx_license year')
+print("wrong_spdx_license year")
