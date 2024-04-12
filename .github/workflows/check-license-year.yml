@@ -1,4 +1,4 @@
-name: Validate SPDX License year in currently changed Python Files
+name: Validate SPDX License year and company mention in currently changed Python Files
 
 on:
   pull_request:
@@ -24,17 +24,23 @@ jobs:
         run: |
           echo "current_year=$(date +"%Y")" >> $GITHUB_ENV  # Set current year as an environment variable
           missing_license_files=""
+          incorrect_mention_files=""
           for file in $(git diff --name-only HEAD^ HEAD | grep '\.py$'); do
             # Check if file contains SPDX license and the current year
             if ! (grep -q "SPDX-License-Identifier: Apache-2.0" "$file" && grep -q "$current_year" "$file"); then
               missing_license_files="$missing_license_files$file "
             fi
+            # Check if file contains the exact mention "2024 Tenstorrent AI ULC"
+            if ! grep -q "2024 Tenstorrent AI ULC" "$file"; then
+              incorrect_mention_files="$incorrect_mention_files$file "
+            fi
           done
-          echo "missing_license_files=$missing_license_files" >> $GITHUB_ENV  # Export the list of files
-          echo "Checked files for SPDX-License compliance."
+          echo "missing_license_files=$missing_license_files" >> $GITHUB_ENV
+          echo "incorrect_mention_files=$incorrect_mention_files" >> $GITHUB_ENV
+          echo "Checked files for SPDX-License compliance and correct company mention."
 
-      - name: Comment on PR about missing SPDX licenses
-        if: env.missing_license_files != ''
+      - name: Comment on PR about missing SPDX licenses or incorrect company mention
+        if: env.missing_license_files != '' || env.incorrect_mention_files != ''
         uses: actions/github-script@v6
         with:
           script: |
@@ -42,8 +48,16 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const missingFiles = process.env.missing_license_files.trim().replace(/\s+/g, '\n');
+            const incorrectMentionFiles = process.env.incorrect_mention_files.trim().replace(/\s+/g, '\n');
             const currentYear = process.env.current_year;
-            const commentBody = `The following Python files are missing the correct SPDX license year or do not contain the '${currentYear}' year within their license header:\n\`\`\`\n${missingFiles}\n\`\`\`\nPlease update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\nThank you.`;
+            let commentBody = `Please review the following issues:\n`;
+            if (missingFiles.length > 0) {
+              commentBody += `The following Python files are missing the correct SPDX license year or do not contain the '${currentYear}' year within their license header:\n\`\`\`\n${missingFiles}\n\`\`\`\n`;
+            }
+            if (incorrectMentionFiles.length > 0) {
+              commentBody += `The following files do not contain the correct '2024 Tenstorrent AI ULC' mention:\n\`\`\`\n${incorrectMentionFiles}\n\`\`\`\n`;
+            }
+            commentBody += `Please update the files accordingly. Your attention and cooperation in this matter are greatly appreciated.\nThank you.`;
             
             github.rest.issues.createComment({
               issue_number: issueNumber,
@@ -52,8 +66,8 @@ jobs:
               body: commentBody
             });
 
-      - name: Fail the workflow
-        if: env.missing_license_files != ''
+      - name: Fail the workflow if issues are found
+        if: env.missing_license_files != '' || env.incorrect_mention_files != ''
         run: |
-          echo "Failing the workflow due to non-compliance with SPDX license requirements."
+          echo "Failing the workflow due to non-compliance with SPDX license requirements and incorrect company mention."
           exit 1
