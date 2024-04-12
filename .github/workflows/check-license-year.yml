@@ -25,11 +25,13 @@ jobs:
           echo "current_year=$(date +"%Y")" >> $GITHUB_ENV  # Set current year as an environment variable
           missing_license_files=""
           for file in $(git diff --name-only HEAD^ HEAD | grep '\.py$'); do
-            if ! grep -L "SPDX-License-Identifier: Apache-2.0" "$file" | grep -q "$current_year"; then
+            # Check if file contains SPDX license and the current year
+            if ! (grep -q "SPDX-License-Identifier: Apache-2.0" "$file" && grep -q "$current_year" "$file"); then
               missing_license_files="$missing_license_files$file "
             fi
           done
           echo "missing_license_files=$missing_license_files" >> $GITHUB_ENV  # Export the list of files
+          echo "Checked files for SPDX-License compliance."
 
       - name: Comment on PR about missing SPDX licenses
         if: env.missing_license_files != ''
